@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Website</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retro Gradient Background with Floating Particles</title>
+
+    <!-- Use Poppins instead of Raleway for a more modern look -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+        rel="stylesheet"
+    />
+
     <style>
         body, html {
             margin: 0;
@@ -12,36 +19,179 @@
             height: 100%;
             overflow: hidden;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            object-fit: cover;
-        }
-
-        .content {
-            z-index: 1;
-            position: relative;
+            background: linear-gradient(135deg, #6a0572 0%, #c06c84 100%);
             color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+        }
+
+        /* Particle styling */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 10s infinite ease-in-out;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(0.8);
+            }
+            100% {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Centered text with a bounce-in effect */
+        .text-pop {
+            position: relative;
+            font-size: 4rem;
+            opacity: 0;
+            animation: bounceIn 1s forwards;
+            animation-delay: 3s;
+            margin-bottom: 20px;
+        }
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            80% {
+                transform: scale(0.9);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Button styling */
+        .what-button {
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: #fff;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            transition: transform 0.15s ease, background-color 0.2s ease;
+        }
+        .what-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        /* Click animation (quick scale down then up) */
+        .what-button:active {
+            transform: scale(0.9);
+        }
+
+        /* Hidden audio element */
+        #bgAudio {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <video autoplay muted loop class="background">
-        <source src="pixel-lofi-city-moewalls-com.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div class="content">
-        <!-- Content will go here -->
-    </div>
+    <!-- Animated text -->
+    <div class="text-pop">Nik...</div>
+
+    <!-- Semi-transparent button below text -->
+    <button class="what-button" id="playMusicBtn">What?</button>
+
+    <!-- Hidden audio element for music playback -->
+    <audio id="bgAudio">
+        <source src="fortnitelobbymusic.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+
+            // Randomize particle size
+            const size = Math.random() * 10 + 5 + 'px';
+            particle.style.width = size;
+            particle.style.height = size;
+
+            // Randomize position
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+
+            // Randomize color
+            particle.style.background = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`;
+
+            // Randomize float animation duration
+            particle.style.animationDuration = Math.random() * 10 + 5 + 's';
+
+            // Add it to the page
+            document.body.appendChild(particle);
+
+            // Remove particle after 15s and create a new one
+            setTimeout(() => {
+                particle.remove();
+                createParticle();
+            }, 15000);
+        }
+
+        function initParticles() {
+            for (let i = 0; i < 50; i++) {
+                createParticle();
+            }
+        }
+
+        /**
+         * Fade-in function: gradually increases volume from 0 to 0.5
+         * over the specified duration (in ms).
+         */
+        function fadeInVolume(mediaElement, duration) {
+            let startTime = null;
+            // Start at mute
+            mediaElement.volume = 0;
+
+            function step(timestamp) {
+                if (!startTime) {
+                    startTime = timestamp;
+                }
+                const progress = (timestamp - startTime) / duration;
+                if (progress < 1) {
+                    // Volume goes from 0 to (0.5 * progress)
+                    mediaElement.volume = progress * 0.5;
+                    requestAnimationFrame(step);
+                } else {
+                    // Ensure final volume is 0.5
+                    mediaElement.volume = 0.5;
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        window.onload = () => {
+            initParticles();
+
+            const bgAudioElement = document.getElementById('bgAudio');
+            const playMusicBtn = document.getElementById('playMusicBtn');
+
+            // Play music with fade-in to volume 0.5 on button click
+            playMusicBtn.addEventListener('click', () => {
+                bgAudioElement.play().then(() => {
+                    fadeInVolume(bgAudioElement, 3000);
+                }).catch(err => {
+                    console.error('Playback error:', err);
+                });
+            });
+        };
+    </script>
 </body>
 </html>
